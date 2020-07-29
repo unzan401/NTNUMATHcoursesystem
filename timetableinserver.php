@@ -111,14 +111,14 @@
             }
         };
 
-        echo '<h3 style="text-align:center">';
+        echo '<a href="javascript:printtimetable()" id="printtimetable">點我列印</a><div id="timetable"><h3 style="text-align:center">';
         echo intval($term/10);
         echo "學年度第";
         echo $term%10;
         echo "學期";
         echo recallname($type,$id,$class);
         echo '</h3>
-        <table  class="table table-striped table-bordered" style="text-align:center;page-break-after:always">
+        <table  class="table table-striped table-bordered">
 		<thead class="thead-dark">
 			<tr>
 			<th scope="col">#</th>
@@ -148,6 +148,25 @@
 				echo "</tr>";
 
 			}
-			echo "</tbody>
-			</table>";
+			echo "</tbody></table></div>";
 	?>
+<script>
+    function printtimetable(){
+        printContent = document.getElementById("timetable").outerHTML,
+        printWindow = window.open('', '_blank', '', false);
+ 
+        printWindow.document.write(
+            '<html>' +
+            '<head>' +
+            '<meta name="charset" content="utf-8" />' +
+            '<link rel="stylesheet" id="elementor-frontend-css" href="http://140.122.64.137/math/wp-content/plugins/elementor/assets/css/frontend.min.css?ver=2.5.14" type="text/css" media="all">' +
+            "<style>.table {margin:auto;border-collapse:collapse;width:80%} .table td,.table th {vertical-align: middle; border:0.5px #aaaaaa solid!important;font-size:0.8rem;line-height:1.6rem;} .table, .table th, .table td {text-align:center};</style>'"+
+            '</head>' +
+            '<body>' + printContent + '</body>' +
+            '</html>'
+        );
+    
+        printWindow.print();
+    }
+    
+</script>

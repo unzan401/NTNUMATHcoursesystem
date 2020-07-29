@@ -12,7 +12,7 @@ if (is_user_logged_in()){
             $term= intval((string)(date("Y")-1911)."1");
         }
     };
-    echo '<div style="display: flex;flex-wrap: wrap;flex-direction: row;"><div style="width:50%"><h2 style="margin:0">上傳開課資料</h2><form action="'.$_SERVER['PHP_SELF'].'?menu=import" method="post" enctype="multipart/form-data">檔案名稱:<input type="file" name="file" id="file" /><br />檔案編碼：<select name="code" style="width:100px"><option value="utf-8">UTF8</option></select><input type="submit" name="submit" value="上傳檔案" /></form></div><div style="width:50%"><h2 style="margin:20px 0 0 0">匯出開課資料</h2><form action="'.$_SERVER['PHP_SELF'].'" method="get"><input type="hidden" name="menu" value="export">學期：<input type="number" name="term" value="'.$term.'" style="max-width:80px"><input type="submit" name="submit" value="預覽" /><p><a href="https://github.com/unzan401/NTNUcoursesystem" target="_blank">開課暨課表系統使用說明</a></p></form></div></div>';
+    echo '<div id="coursesystem" style="display: flex;flex-wrap: wrap;flex-direction: row;"><div style="width:50%"><h2 style="margin:0">上傳開課資料</h2><form action="'.$_SERVER['PHP_SELF'].'?menu=import#coursesystem" method="post" enctype="multipart/form-data">檔案名稱:<input type="file" name="file" id="file" /><br />檔案編碼：<select name="code" style="width:100px"><option value="utf-8">UTF8</option></select><input type="submit" name="submit" value="上傳檔案" /></form></div><div style="width:50%"><h2 style="margin:20px 0 0 0">匯出開課資料</h2><form action="'.$_SERVER['PHP_SELF'].'#coursesystem" method="get"><input type="hidden" name="menu" value="export">學期：<input type="number" name="term" value="'.$term.'" style="max-width:80px"><input type="submit" name="submit" value="預覽" /><p><a href="https://github.com/unzan401/NTNUcoursesystem" target="_blank">開課暨課表系統使用說明</a></p></form></div></div>';
     
     if($_GET["menu"]=="import"){
         global $wpdb;
@@ -43,34 +43,39 @@ if (is_user_logged_in()){
             }
 
             if ($value[0]!=""){
-                $insertSql="insert into timetable (No,term,classname,credit,required,teacher,ps,time,classroom,class) values (";
-                for ($j=0;$j<$datalength;$j++){
-                    $insertSql.="'".$value[$j]."'";
-                    if($j!=$datalength-1){
-                        $insertSql.=", ";
-                    };
-                };
-                $insertSql.=")";
-                $insertSql =$wpdb->prepare($insertSql);
-                $status= $wpdb->query($insertSql);;
-                if ($status) {
-                    echo "No=".$value[0].'新增成功<br>';
-                } else {
-                    // echo "錯誤: " . $insertSql . "<br>" . $wpdb->error;
-                    $update="update timetable set ";
-                    for ($j=1;$j<$datalength;$j++){
-                        $update.=$title[$j]."='".$value[$j]."'";
+                if ($value[1]==""){
+                    $wpdb->query($wpdb->prepare("delete from timetable where timetable.No = ".$value[0]));
+                    echo "No=".$value[0]."刪除成功<br>";
+                }else{
+                    $insertSql="insert into timetable (No,term,classname,credit,required,teacher,ps,time,classroom,class) values (";
+                    for ($j=0;$j<$datalength;$j++){
+                        $insertSql.="'".$value[$j]."'";
                         if($j!=$datalength-1){
-                            $update.=", ";
+                            $insertSql.=", ";
                         };
                     };
-                    $update.=" where No =".$value[0];
-                    $update=$wpdb->prepare($update);
-                    $status =$wpdb->query($update);
-                    if ($status){
-                        echo "No=".$value[0]."更新成功<br>";
-                    }else{
-                        echo "No=".$value[0]."錯誤 資料未修改或檔案格式不正確"."<br>";
+                    $insertSql.=")";
+                    $insertSql =$wpdb->prepare($insertSql);
+                    $status= $wpdb->query($insertSql);
+                    if ($status) {
+                        echo "No=".$value[0].'新增成功<br>';
+                    } else {
+                        // echo "錯誤: " . $insertSql . "<br>" . $wpdb->error;
+                        $update="update timetable set ";
+                        for ($j=1;$j<$datalength;$j++){
+                            $update.=$title[$j]."='".$value[$j]."'";
+                            if($j!=$datalength-1){
+                                $update.=", ";
+                            };
+                        };
+                        $update.=" where No =".$value[0];
+                        $update=$wpdb->prepare($update);
+                        $status =$wpdb->query($update);
+                        if ($status){
+                            echo "No=".$value[0]."更新成功<br>";
+                        }else{
+                            echo "No=".$value[0]."錯誤 資料未修改或檔案格式不正確"."<br>";
+                        }
                     }
                 }
             }
